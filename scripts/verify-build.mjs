@@ -11,7 +11,8 @@ const localSite = ['localhost', '127.0.0.1', '[::1]'].includes(siteUrl.hostname)
 const publishedSlugs = [
   'notes-on-learning-in-public',
   'rethinking-the-work-behind-ai-agents',
-  'a-quieter-week'
+  'a-quieter-week',
+  'leaving-room-for-slow-thinking'
 ];
 
 function expect(condition, message) {
@@ -134,6 +135,7 @@ async function main() {
   const about = await readOutput('/about/');
   const article = await readOutput('/posts/rethinking-the-work-behind-ai-agents/');
   const noCoverArticle = await readOutput('/posts/notes-on-learning-in-public/');
+  const chineseSampleArticle = await readOutput('/posts/leaving-room-for-slow-thinking/');
   const rss = await readOutput('/rss.xml');
   const robots = await readOutput('/robots.txt');
   const sitemapIndex = await readOutput('/sitemap-index.xml');
@@ -175,6 +177,7 @@ async function main() {
   expect(article.includes('id="the-real-challenge-is-defining-the-problem"'), 'Markdown heading did not render with a fragment target.');
   expect(noCoverArticle.includes('class="callout"'), 'MDX Callout did not render.');
   expect(tagAttributes(noCoverArticle, 'figcaption').length > 0, 'MDX Figure caption did not render.');
+  expect(chineseSampleArticle.includes('留一點時間，給還沒想清楚的事') && chineseSampleArticle.includes('不要把每個空檔都塞滿'), 'Traditional Chinese sample article content did not render.');
   expect(metaContent(home, 'name', 'robots') === (localSite ? 'noindex, nofollow' : undefined), 'Homepage indexability does not match the configured site URL.');
   expect(robots === `User-agent: *\n${localSite ? 'Disallow: /' : 'Allow: /'}\nSitemap: ${siteOrigin}/sitemap-index.xml\n`, 'robots.txt does not match the configured site URL.');
   expect(sitemapIndex.includes(`${siteOrigin}/sitemap-0.xml`), 'Sitemap index does not reference the sitemap payload.');
