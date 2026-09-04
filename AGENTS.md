@@ -1,3 +1,10 @@
+## Blog implementation handoff
+
+Before implementation or UI work, read and follow
+`rick-blog-codex-handoff/AGENTS.md` and its prescribed reading order.
+Paths in those handoff documents are relative to `rick-blog-codex-handoff/`.
+The approved design references and v1 technical constraints apply to this project.
+
 ## Development
 
 When starting the dev server, use background mode:
