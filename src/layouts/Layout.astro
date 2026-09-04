@@ -1,5 +1,17 @@
 ---
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
 import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Rick Lin — Independent Writing',
+  description = 'Independent writing about technology, products, work, and the things I am still trying to understand.'
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -8,20 +20,18 @@ import '../styles/global.css';
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<meta name="description" content={description} />
+		<title>{title}</title>
 	</head>
 	<body>
-		<slot />
+		<a class="skip-link" href="#main-content">Skip to main content</a>
+		<div class="site-shell">
+			<SiteHeader />
+			<main id="main-content" tabindex="-1">
+				<slot />
+			</main>
+			<SiteFooter />
+		</div>
 	</body>
 </html>
-
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>

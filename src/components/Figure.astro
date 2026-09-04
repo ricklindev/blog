@@ -17,8 +17,12 @@ const { caption } = Astro.props;
   }
 
   figcaption {
-    color: #6f6b63;
-    font: 0.8125rem/1.5 system-ui, sans-serif;
+    color: var(--muted, #6f6b63);
+    font: 0.8125rem/1.5 var(--sans, system-ui, sans-serif);
     margin-top: 0.75rem;
+  }
+  .figure-media :global(img) {
+    height: auto;
+    max-width: 100%;
   }
 </style>

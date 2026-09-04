@@ -1,11 +1,72 @@
 ---
-import Welcome from '../components/Welcome.astro';
+import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
+import { formatDate, getFeaturedPost, getPosts, postHref, readingTime } from '../lib/posts';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const [posts, featured] = await Promise.all([getPosts(), getFeaturedPost()]);
+const latestPosts = posts.filter((post) => post.id !== featured?.id);
 ---
 
-<Layout>
-	<Welcome />
+<Layout
+  title="Rick Lin — Independent Writing"
+  description="Independent writing about technology, products, work, and the things I am still trying to understand."
+>
+  <section class="home-intro" aria-labelledby="home-title">
+    <h1 id="home-title">Independent writing</h1>
+    <p class="home-intro-lede">Notes on technology, products, work, and the things I’m still trying to understand.</p>
+    <p class="home-intro-copy">I write about AI, products, engineering, and the shape of work, learning, and life. I am more interested in the thinking that changes my mind than in providing a final answer.</p>
+  </section>
+
+  <section class="featured-section" id="writing" aria-labelledby="featured-heading">
+    <div class="section-heading">
+      <h2 id="featured-heading">Featured</h2>
+      {featured && <span>{formatDate(featured.data.publishedAt)}</span>}
+    </div>
+
+    {
+      featured ? (
+        <article class:list={['featured-post', { 'featured-post-without-cover': !featured.data.cover }]}>
+          {featured.data.cover && (
+            <a class="featured-cover" href={postHref(featured)} aria-label={`Read ${featured.data.title}`}>
+              <Image alt="" src={featured.data.cover} widths={[360, 640, 960, 1472]} sizes="(max-width: 700px) calc(100vw - 28px), (max-width: 1220px) calc(64.4vw - 49px), 736px" loading="eager" fetchpriority="high" />
+            </a>
+          )}
+          <div class="featured-copy">
+            <div class="post-meta">
+              <span>{featured.data.tags.join(' · ')}</span>
+              <span>{readingTime(featured)} min read</span>
+            </div>
+            <h3><a href={postHref(featured)}>{featured.data.title}</a></h3>
+            <p>{featured.data.description}</p>
+            <a class="text-link" href={postHref(featured)}>Read article <span aria-hidden="true">→</span></a>
+          </div>
+        </article>
+      ) : (
+        <p class="empty-state">There is no featured writing yet.</p>
+      )
+    }
+  </section>
+
+  <section class="latest-section" aria-labelledby="latest-heading">
+    <div class="section-heading"><h2 id="latest-heading">Latest writing</h2></div>
+    {
+      latestPosts.length > 0 ? (
+        <ol class="post-list">
+          {latestPosts.map((post) => (
+            <li>
+              <a class="post-row" href={postHref(post)}>
+                <time datetime={post.data.publishedAt.toISOString()}>{formatDate(post.data.publishedAt)}</time>
+                <span class="post-tags">{post.data.tags.join(' · ')}</span>
+                <span class="post-title">{post.data.title}</span>
+                <span class="post-reading-time">{readingTime(post)} min read</span>
+                <span aria-hidden="true" class="post-arrow">→</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p class="empty-state">New writing will appear here.</p>
+      )
+    }
+  </section>
 </Layout>

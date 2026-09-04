@@ -1,0 +1,87 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import type { BlogPost } from '../../lib/posts';
+import Layout from '../../layouts/Layout.astro';
+import { formatDate, getPosts, postHref, readingTime } from '../../lib/posts';
+
+interface Props {
+  post: BlogPost;
+  newer?: BlogPost;
+  older?: BlogPost;
+}
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+
+  return posts.map((post, index) => ({
+    params: { slug: post.id },
+    props: {
+      post,
+      newer: posts[index - 1],
+      older: posts[index + 1]
+    }
+  }));
+}
+
+const { post, newer, older } = Astro.props;
+const { Content, headings } = await render(post);
+const tableOfContents = headings.filter((heading) => heading.depth === 2);
+const isDraftPreview = import.meta.env.DEV && post.data.draft;
+---
+
+<Layout title={`${post.data.title} — Rick Lin`} description={post.data.description}>
+  <article class="post-page">
+    <header class="post-header">
+      <div class="post-meta">
+        <span>{post.data.tags.join(' · ')}</span>
+        <time datetime={post.data.publishedAt.toISOString()}>{formatDate(post.data.publishedAt)}</time>
+        <span>{readingTime(post)} min read</span>
+        {isDraftPreview && <span class="draft-badge">Draft preview</span>}
+      </div>
+      <h1>{post.data.title}</h1>
+      <p class="post-dek">{post.data.description}</p>
+    </header>
+
+    {
+      post.data.cover && (
+        <div class="post-cover">
+          <Image alt="" src={post.data.cover} widths={[360, 760, 1140, 1536]} sizes="(max-width: 700px) calc(100vw - 28px), (max-width: 1180px) calc(100vw - 40px), 1140px" loading="eager" fetchpriority="high" />
+        </div>
+      )
+    }
+
+    <div class:list={['post-layout', { 'post-layout-with-toc': tableOfContents.length > 0 }]}>
+      {
+        tableOfContents.length > 0 && (
+          <aside class="table-of-contents" aria-label="On this page">
+            <p>On this page</p>
+            <ol>
+              {tableOfContents.map((heading) => (
+                <li><a href={`#${heading.slug}`}>{heading.text}</a></li>
+              ))}
+            </ol>
+          </aside>
+        )
+      }
+      <div class="article-body"><Content /></div>
+    </div>
+  </article>
+
+  {(newer || older) && (
+    <nav class="post-pagination" aria-label="Adjacent writing">
+      {older ? (
+        <a href={postHref(older)}>
+          <span>← Older writing</span>
+          <strong>{older.data.title}</strong>
+        </a>
+      ) : <span />}
+      {newer ? (
+        <a href={postHref(newer)}>
+          <span>Newer writing →</span>
+          <strong>{newer.data.title}</strong>
+        </a>
+      ) : <span />}
+    </nav>
+  )}
+</Layout>

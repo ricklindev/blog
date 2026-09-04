@@ -13,15 +13,18 @@ const { title } = Astro.props;
 
 <style>
   .callout {
-    border-block: 1px solid currentColor;
+    border-block: 1px solid var(--line, currentColor);
     margin-block: 2rem;
-    padding-block: 1rem;
+    padding: 1rem 0;
   }
 
   .callout-title {
-    font: 600 0.75rem/1.4 system-ui, sans-serif;
+    font: 600 0.6875rem/1.4 var(--sans, system-ui, sans-serif);
     letter-spacing: 0.08em;
     margin: 0 0 0.5rem;
     text-transform: uppercase;
+  }
+  .callout-content :global(p:last-child) {
+    margin-bottom: 0;
   }
 </style>
