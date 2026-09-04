@@ -1,27 +1,42 @@
 ---
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
+import SEO from '../components/SEO.astro';
+import type { ImageMetadata } from 'astro';
+import { site } from '../config/site';
 import '../styles/global.css';
 
 interface Props {
   title?: string;
   description?: string;
+  canonicalPath?: string;
+  type?: 'website' | 'article';
+  cover?: ImageMetadata;
+  publishedAt?: Date;
+  updatedAt?: Date;
+  draft?: boolean;
 }
 
 const {
-  title = 'Rick Lin — Independent Writing',
-  description = 'Independent writing about technology, products, work, and the things I am still trying to understand.'
+  title = site.title,
+  description = site.description,
+  canonicalPath,
+  type,
+  cover,
+  publishedAt,
+  updatedAt,
+  draft
 } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={site.language}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<meta name="description" content={description} />
+		<SEO {title} {description} {canonicalPath} {type} {cover} {publishedAt} {updatedAt} {draft} />
 		<title>{title}</title>
 	</head>
 	<body>

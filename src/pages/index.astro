@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
+import { site } from '../config/site';
 import { formatDate, getFeaturedPost, getPosts, postHref, readingTime } from '../lib/posts';
 
 const [posts, featured] = await Promise.all([getPosts(), getFeaturedPost()]);
@@ -8,8 +9,8 @@ const latestPosts = posts.filter((post) => post.id !== featured?.id);
 ---
 
 <Layout
-  title="Rick Lin — Independent Writing"
-  description="Independent writing about technology, products, work, and the things I am still trying to understand."
+  title={site.title}
+  description={site.description}
 >
   <section class="home-intro" aria-labelledby="home-title">
     <h1 id="home-title">Independent writing</h1>

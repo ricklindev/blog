@@ -50,6 +50,18 @@ Ready to publish
 
 This sequence does not look especially agentic. It is still closer to the product than an architecture diagram.
 
+The implementation can remain equally plain. A small type makes the review point explicit before an automated step is allowed to continue:
+
+```ts
+type WorkflowStep = {
+  evidence: string[];
+  needsHumanReview: boolean;
+};
+
+const isReadyToPublish = (step: WorkflowStep) =>
+  step.evidence.length > 0 && !step.needsHumanReview;
+```
+
 ## The agent comes later
 
 Once the workflow is clear, an agent framework becomes useful. You know why it should pause, which state must remain, which tools it needs, and how a person can recover from failure.

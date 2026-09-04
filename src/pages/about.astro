@@ -1,8 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { site } from '../config/site';
 ---
 
-<Layout title="About — Rick Lin" description="About Rick Lin's independent writing on technology, products, work, learning, and life.">
+<Layout title={`About — ${site.author}`} description={`About ${site.author}'s independent writing on technology, products, work, learning, and life.`}>
   <article class="about-page">
     <p class="page-label">About</p>
     <h1>A place to keep thinking in public.</h1>

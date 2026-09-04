@@ -38,7 +38,7 @@ export async function getFeaturedPost(options: GetPostsOptions = {}): Promise<Bl
 export function postHref(post: Pick<BlogPost, 'id'> | string): string {
   const id = typeof post === 'string' ? post : post.id;
 
-  return `/posts/${encodeURIComponent(id)}`;
+  return `/posts/${encodeURIComponent(id)}/`;
 }
 
 export function formatDate(date: Date): string {
