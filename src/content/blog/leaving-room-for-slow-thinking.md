@@ -6,6 +6,7 @@ tags:
   - 工作
   - 學習
   - 思考
+cover: "./covers/leaving-room-for-slow-thinking.png"
 draft: false
 featured: false
 ---
