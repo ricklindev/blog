@@ -29,7 +29,7 @@ img { display: block; max-width: 100%; }
 .site-header, .site-footer { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; color: var(--muted); font: 500 0.75rem/1.4 var(--sans); }
 .site-header { min-height: 4.5rem; border-bottom: 1px solid var(--line); }
 .site-brand { display: inline-flex; align-items: center; gap: 0.65rem; color: var(--ink); font: 500 1rem/1 var(--serif); letter-spacing: -0.02em; }
-.site-brand img { width: 1.75rem; height: 1.75rem; flex: none; }
+.site-brand img { width: 2.25rem; height: 2.25rem; flex: none; }
 .site-nav { display: flex; gap: 1.5rem; }
 .site-footer { min-height: 6.5rem; border-top: 1px solid var(--line); }
 
