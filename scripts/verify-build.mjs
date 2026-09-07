@@ -172,7 +172,7 @@ async function main() {
   await assertMetaImageAsset(metaContent(article, 'property', 'og:image'), 'Article Open Graph image');
   await assertMetaImageAsset(metaContent(article, 'name', 'twitter:image'), 'Article Twitter image');
   expect(article.includes('轉眼間，就跳了一年的 Bachata') && article.includes('這才是跳舞的意義'), 'The Bachata article content did not render.');
-  expect(article.includes('id="留給未來的自己"'), 'Markdown heading did not render with a fragment target.');
+  expect(article.includes('在這裡留下一些想法，提醒未來的自己：'), 'The closing reminders introduction did not render.');
   expect(article.includes('<ol>') && article.includes('<li>'), 'The closing reminders did not render as an ordered list.');
   expect(metaContent(home, 'name', 'robots') === (localSite ? 'noindex, nofollow' : undefined), 'Homepage indexability does not match the configured site URL.');
   expect(robots === `User-agent: *\n${localSite ? 'Disallow: /' : 'Allow: /'}\nSitemap: ${siteOrigin}/sitemap-index.xml\n`, 'robots.txt does not match the configured site URL.');
@@ -186,7 +186,7 @@ async function main() {
   ];
   expect(sitemapLocations.length === expectedLocations.length && expectedLocations.every((location) => sitemapLocations.includes(location)), 'Sitemap must contain only the homepage, about page, and published article routes.');
   expect(removedSlugs.every((slug) => !sitemap.includes(slug) && !rss.includes(slug)), 'A removed article leaked into a publishing output.');
-  expect(rss.includes('轉眼間，就跳了一年的 Bachata') && rss.includes('<category>舞蹈</category>') && rss.includes('<pubDate>'), 'RSS article, categories, or publication date is missing.');
+  expect(rss.includes('轉眼間，就跳了一年的 Bachata') && rss.includes('<category>生活</category>') && rss.includes('<category>學習</category>') && rss.includes('<pubDate>'), 'RSS article, categories, or publication date is missing.');
   expect(rss.startsWith('<?xml version="1.0" encoding="UTF-8"?>') && rss.endsWith('</rss>'), 'RSS output is not a complete XML document.');
 
   const outputFiles = await walk(distDirectory);
