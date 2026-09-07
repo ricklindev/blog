@@ -8,11 +8,13 @@ const distDirectory = path.resolve('dist');
 const siteUrl = new URL(process.env.SITE_URL ?? 'http://localhost:4321/');
 const siteOrigin = siteUrl.origin;
 const localSite = ['localhost', '127.0.0.1', '[::1]'].includes(siteUrl.hostname);
-const publishedSlugs = [
+const publishedSlugs = ['a-year-of-bachata'];
+const removedSlugs = [
   'notes-on-learning-in-public',
   'rethinking-the-work-behind-ai-agents',
   'a-quieter-week',
-  'leaving-room-for-slow-thinking'
+  'leaving-room-for-slow-thinking',
+  'draft-mdx-specimen'
 ];
 
 function expect(condition, message) {
@@ -129,19 +131,20 @@ async function main() {
   for (const slug of publishedSlugs) {
     expect(await exists(outputPath(`/posts/${slug}/`)), `Missing published article output for ${slug}.`);
   }
-  expect(!(await exists(outputPath('/posts/draft-mdx-specimen/'))), 'A draft article was emitted in production output.');
+  for (const slug of removedSlugs) {
+    expect(!(await exists(outputPath(`/posts/${slug}/`))), `Removed article output still exists for ${slug}.`);
+  }
 
   const home = await readOutput('/');
   const about = await readOutput('/about/');
-  const article = await readOutput('/posts/rethinking-the-work-behind-ai-agents/');
-  const noCoverArticle = await readOutput('/posts/notes-on-learning-in-public/');
-  const chineseSampleArticle = await readOutput('/posts/leaving-room-for-slow-thinking/');
+  const article = await readOutput('/posts/a-year-of-bachata/');
   const rss = await readOutput('/rss.xml');
   const robots = await readOutput('/robots.txt');
   const sitemapIndex = await readOutput('/sitemap-index.xml');
   const sitemap = await readOutput('/sitemap-0.xml');
 
   expect(home.includes('<title>Rick Lin — Independent Writing</title>'), 'Homepage title is missing.');
+  expect(home.includes('3 min read'), 'The Chinese article reading time is incorrect.');
   expect(about.includes('<title>About — Rick Lin</title>'), 'About title is missing.');
   expect(metaContent(home, 'name', 'description') === 'Independent writing about technology, products, work, and the things I am still trying to understand.', 'Homepage description is incorrect.');
   expect(attribute(tagAttributes(home, 'link').find((tag) => attribute(tag, 'rel') === 'canonical'), 'href') === `${siteOrigin}/`, 'Homepage canonical URL is incorrect.');
@@ -155,12 +158,12 @@ async function main() {
   expect(metaContent(home, 'name', 'twitter:image') === `${siteOrigin}/og-default.png`, 'Homepage must use the default Twitter image.');
   await assertMetaImageAsset(metaContent(home, 'property', 'og:image'), 'Homepage Open Graph image');
   await assertMetaImageAsset(metaContent(home, 'name', 'twitter:image'), 'Homepage Twitter image');
-  expect(attribute(tagAttributes(article, 'link').find((tag) => attribute(tag, 'rel') === 'canonical'), 'href') === `${siteOrigin}/posts/rethinking-the-work-behind-ai-agents/`, 'Article canonical URL is incorrect.');
+  expect(attribute(tagAttributes(article, 'link').find((tag) => attribute(tag, 'rel') === 'canonical'), 'href') === `${siteOrigin}/posts/a-year-of-bachata/`, 'Article canonical URL is incorrect.');
   expect(metaContent(article, 'property', 'og:type') === 'article', 'Article Open Graph type is incorrect.');
-  expect(metaContent(article, 'property', 'og:title') === 'Rethinking the Work Behind AI Agents — Rick Lin', 'Article Open Graph title is incorrect.');
-  expect(metaContent(article, 'property', 'og:description') === 'The hard part of an agent is often understanding the work before trying to automate it.', 'Article Open Graph description is incorrect.');
-  expect(metaContent(article, 'property', 'article:published_time') === '2026-09-03T00:00:00.000Z', 'Article publication metadata is incorrect.');
-  expect(metaContent(article, 'property', 'article:modified_time') === '2026-09-04T00:00:00.000Z', 'Article modification metadata is incorrect.');
+  expect(metaContent(article, 'property', 'og:title') === '轉眼間，就跳了一年的 Bachata — Rick Lin', 'Article Open Graph title is incorrect.');
+  expect(metaContent(article, 'property', 'og:description') === '從不敢邀陌生舞伴、把跳舞當成考試，到學會放鬆、聽音樂，並與舞伴連結。這是我跳 Bachata 一年後，想留給自己的五個提醒。', 'Article Open Graph description is incorrect.');
+  expect(metaContent(article, 'property', 'article:published_time') === '2026-09-07T00:00:00.000Z', 'Article publication metadata is incorrect.');
+  expect(metaContent(article, 'property', 'article:modified_time') === undefined, 'Article without an update date must not emit modified metadata.');
   expect(metaContent(article, 'property', 'og:image')?.startsWith(`${siteOrigin}/_astro/`), 'Covered article must use an optimized Open Graph image.');
   expect(/\.jpe?g$/u.test(metaContent(article, 'property', 'og:image') ?? ''), 'Covered article Open Graph image must be JPEG.');
   expect(metaContent(article, 'name', 'twitter:title') === metaContent(article, 'property', 'og:title'), 'Article Twitter title is incorrect.');
@@ -168,16 +171,9 @@ async function main() {
   expect(metaContent(article, 'name', 'twitter:image') === metaContent(article, 'property', 'og:image'), 'Article Twitter image is incorrect.');
   await assertMetaImageAsset(metaContent(article, 'property', 'og:image'), 'Article Open Graph image');
   await assertMetaImageAsset(metaContent(article, 'name', 'twitter:image'), 'Article Twitter image');
-  expect(metaContent(noCoverArticle, 'property', 'og:image') === `${siteOrigin}/og-default.png`, 'Article without a cover must use the default Open Graph image.');
-  await assertMetaImageAsset(metaContent(noCoverArticle, 'property', 'og:image'), 'No-cover article Open Graph image');
-  expect(metaContent(noCoverArticle, 'property', 'article:modified_time') === undefined, 'Article without an update date must not emit modified metadata.');
-  expect(article.includes('class="astro-code'), 'The representative TypeScript fence was not highlighted by Shiki.');
-  expect(article.includes('<blockquote>'), 'Markdown blockquote did not render.');
-  expect(article.includes('<ul>'), 'Markdown list did not render.');
-  expect(article.includes('id="the-real-challenge-is-defining-the-problem"'), 'Markdown heading did not render with a fragment target.');
-  expect(noCoverArticle.includes('class="callout"'), 'MDX Callout did not render.');
-  expect(tagAttributes(noCoverArticle, 'figcaption').length > 0, 'MDX Figure caption did not render.');
-  expect(chineseSampleArticle.includes('留一點時間，給還沒想清楚的事') && chineseSampleArticle.includes('不要把每個空檔都塞滿'), 'Traditional Chinese sample article content did not render.');
+  expect(article.includes('轉眼間，就跳了一年的 Bachata') && article.includes('這才是跳舞的意義'), 'The Bachata article content did not render.');
+  expect(article.includes('id="留給未來的自己"'), 'Markdown heading did not render with a fragment target.');
+  expect(article.includes('<ol>') && article.includes('<li>'), 'The closing reminders did not render as an ordered list.');
   expect(metaContent(home, 'name', 'robots') === (localSite ? 'noindex, nofollow' : undefined), 'Homepage indexability does not match the configured site URL.');
   expect(robots === `User-agent: *\n${localSite ? 'Disallow: /' : 'Allow: /'}\nSitemap: ${siteOrigin}/sitemap-index.xml\n`, 'robots.txt does not match the configured site URL.');
   expect(sitemapIndex.includes(`${siteOrigin}/sitemap-0.xml`), 'Sitemap index does not reference the sitemap payload.');
@@ -189,16 +185,15 @@ async function main() {
     ...publishedSlugs.map((slug) => `${siteOrigin}/posts/${slug}/`)
   ];
   expect(sitemapLocations.length === expectedLocations.length && expectedLocations.every((location) => sitemapLocations.includes(location)), 'Sitemap must contain only the homepage, about page, and published article routes.');
-  expect(!sitemap.includes('draft-mdx-specimen') && !rss.includes('Draft MDX Specimen'), 'A draft was included in a publishing output.');
-  expect(rss.indexOf('Notes on Learning in Public') < rss.indexOf('Rethinking the Work Behind AI Agents'), 'RSS entries are not ordered by publication date.');
-  expect(rss.includes('<category>Learning</category>') && rss.includes('<pubDate>'), 'RSS categories or publication dates are missing.');
+  expect(removedSlugs.every((slug) => !sitemap.includes(slug) && !rss.includes(slug)), 'A removed article leaked into a publishing output.');
+  expect(rss.includes('轉眼間，就跳了一年的 Bachata') && rss.includes('<category>舞蹈</category>') && rss.includes('<pubDate>'), 'RSS article, categories, or publication date is missing.');
   expect(rss.startsWith('<?xml version="1.0" encoding="UTF-8"?>') && rss.endsWith('</rss>'), 'RSS output is not a complete XML document.');
 
   const outputFiles = await walk(distDirectory);
   const htmlFiles = outputFiles.filter((file) => file.endsWith('.html'));
   const textFiles = outputFiles.filter((file) => /\.(?:css|html|txt|xml)$/u.test(file));
   const allOutput = await Promise.all(textFiles.map((file) => readFile(file, 'utf8')));
-  expect(!allOutput.join('\n').includes('draft-mdx-specimen'), 'Draft slug leaked into production output.');
+  expect(removedSlugs.every((slug) => !allOutput.join('\n').includes(slug)), 'A removed article slug leaked into production output.');
 
   for (const file of htmlFiles) {
     const html = await readFile(file, 'utf8');
@@ -208,7 +203,7 @@ async function main() {
     await assertLocalTargets(html, route);
   }
 
-  const responsiveImagePages = ['/', '/posts/rethinking-the-work-behind-ai-agents/'];
+  const responsiveImagePages = ['/', '/posts/a-year-of-bachata/'];
   for (const pathname of responsiveImagePages) {
     const html = await readOutput(pathname);
     expect(tagAttributes(html, 'img').some((image) => attribute(image, 'srcset')), `Responsive cover image variants are missing from ${pathname}.`);

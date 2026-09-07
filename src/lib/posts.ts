@@ -50,7 +50,10 @@ export function formatDate(date: Date): string {
 
 export function readingTime(post: Pick<BlogPost, 'body'> | string): number {
   const body = typeof post === 'string' ? post : post.body ?? '';
-  const words = body.trim().split(/\s+/u).filter(Boolean).length;
+  const hanCharacters = body.match(/\p{Script=Han}/gu)?.length ?? 0;
+  const nonHanWords = body
+    .replace(/\p{Script=Han}/gu, ' ')
+    .match(/[\p{Letter}\p{Number}]+(?:[’'-][\p{Letter}\p{Number}]+)*/gu)?.length ?? 0;
 
-  return Math.max(1, Math.ceil(words / 225));
+  return Math.max(1, Math.ceil(hanCharacters / 500 + nonHanWords / 225));
 }
